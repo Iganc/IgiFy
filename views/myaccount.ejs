@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= user.username %> Account</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .account-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+        }
+        .info-row {
+            margin-bottom: 15px;
+            display: flex;
+        }
+        .info-label {
+            font-weight: bold;
+            width: 120px;
+        }
+        .nav-links {
+            margin: 20px 0;
+        }
+        .nav-links a {
+            margin-right: 15px;
+            text-decoration: none;
+        }
+        .button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>My Account</h1>
+
+    <div class="account-section">
+        <h2>Personal Information</h2>
+
+        <div class="info-row">
+            <span class="info-label">Username:</span>
+            <span><%= user.username %></span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Email:</span>
+            <span><%= user.email || 'Not provided' %></span>
+        </div>
+    </div>
+
+    <% if (user.is_artist && artistProfiles && artistProfiles.length > 0) { %>
+    <div class="account-section">
+        <h2>Artist Profiles</h2>
+        <ul>
+            <% artistProfiles.forEach(function(artist) { %>
+                <li>
+                    <strong><%= artist.name %></strong>
+                    <a href="/a/<%= artist.name %>" class="button">View Profile</a>
+                </li>
+            <% }); %>
+        </ul>
+        <a href="/artistsPanel" class="button">Manage Artist Profiles</a>
+    </div>
+    <% } else if (user.is_artist) { %>
+    <div class="account-section">
+        <h2>Artist Profiles</h2>
+        <p>You can manage your artist profiles from the Artist Panel.</p>
+        <a href="/artistsPanel" class="button">Go to Artist Panel</a>
+    </div>
+    <% } %>
+
+    <div class="account-section">
+        <h2>Account Settings</h2>
+        <a href="/change-password" class="button">Change Password</a>
+        <a href="/logout" class="button" style="background-color: #f44336;">Logout</a>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Artist Panel - <%= artist.name %></title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+                line-height: 1.6;
+                color: #333;
+            }
+
+            .artist-header {
+                display: flex;
+                align-items: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid #eee;
+            }
+
+            .artist-image {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                object-fit: cover;
+                margin-right: 20px;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+                margin: 0;
+                color: #333;
+            }
+
+            .panel-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+            }
+
+            @media (max-width: 768px) {
+                .panel-container {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            .artist-info {
+                background-color: #f9f9f9;
+                border-radius: 8px;
+                padding: 25px;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+                margin-top: 0;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #eee;
+            }
+
+            .info-list {
+                list-style: none;
+                padding: 0;
+            }
+
+            .info-list li {
+                margin-bottom: 15px;
+            }
+
+            .info-label {
+                font-weight: bold;
+                display: block;
+                margin-bottom: 5px;
+                color: #666;
+            }
+
+            .info-value {
+                font-size: 1.1rem;
+            }
+
+            .view-button {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #0066cc;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                font-weight: bold;
+                margin-top: 15px;
+                transition: background-color 0.2s;
+            }
+
+            .view-button:hover {
+                background-color: #0055aa;
+            }
+
+            .album-form {
+                background-color: #fff;
+                border-radius: 8px;
+                padding: 25px;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: bold;
+                color: #555;
+            }
+
+            input[type="text"], select {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                font-size: 1rem;
+            }
+
+            input[type="file"] {
+                display: block;
+                margin-top: 5px;
+            }
+
+            button[type="submit"] {
+                display: inline-block;
+                padding: 12px 25px;
+                background-color: #0066cc;
+                color: white;
+                text-decoration: none;
+                border: none;
+                border-radius: 5px;
+                font-weight: bold;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: background-color 0.2s;
+            }
+
+            button[type="submit"]:hover {
+                background-color: #0055aa;
+            }
+            .release-types {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+                margin-bottom: 25px;
+            }
+
+            @media (max-width: 768px) {
+                .release-types {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            .release-card {
+                cursor: pointer;
+                position: relative;
+                border: 2px solid #ddd;
+                border-radius: 8px;
+                padding: 0;
+                transition: all 0.2s;
+                overflow: hidden;
+            }
+
+            .release-card input[type="radio"] {
+                position: absolute;
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+            .release-card .card-content {
+                padding: 20px;
+                text-align: center;
+            }
+
+            .release-card .type-icon {
+                font-size: 2.5rem;
+                margin-bottom: 10px;
+            }
+
+            .release-card h3 {
+                margin: 0 0 10px;
+                font-size: 1.2rem;
+            }
+
+            .release-card p {
+                margin: 0;
+                font-size: 0.85rem;
+                color: #666;
+            }
+
+            .release-card:hover {
+                border-color: #0066cc;
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+            .release-card input[type="radio"]:checked + .card-content {
+                background-color: #f0f6ff;
+            }
+
+            .release-card input[type="radio"]:checked + .card-content .type-icon {
+                color: #0066cc;
+            }
+
+            .release-card input[type="radio"]:checked + .card-content h3 {
+                color: #0066cc;
+            }
+
+            .release-card input[type="radio"]:checked + .card-content::after {
+                content: "✓";
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                color: #0066cc;
+                font-weight: bold;
+            }
+
+            .custom-file-upload {
+                position: relative;
+                margin-top: 10px;
+            }
+
+            .file-input {
+                position: absolute;
+                width: 0.1px;
+                height: 0.1px;
+                opacity: 0;
+                overflow: hidden;
+                z-index: -1;
+            }
+
+            .file-upload-btn {
+                display: inline-block;
+                padding: 12px 20px;
+                background-color: #0066cc;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                text-align: center;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .file-upload-btn:hover {
+                background-color: #0055aa;
+            }
+
+            .upload-icon {
+                margin-right: 8px;
+            }
+
+            .file-name {
+                padding: 8px 12px;
+                background-color: #f5f5f5;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 0.9rem;
+                color: #555;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .selected-songs-list {
+                max-height: 200px;
+                overflow-y: auto;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 5px;
+                margin-top: 10px;
+            }
+
+            .selected-songs-list:empty {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="artist-header">
+            <% if(artist.image_filename) { %>
+                <img src="/uploads/<%= artist.image_filename %>" alt="<%= artist.name %>" class="artist-image">
+            <% } else { %>
+                <div class="artist-image" style="background-color: #eee; display: flex; justify-content: center; align-items: center;">
+                    <span>No image</span>
+                </div>
+            <% } %>
+            <h1><%= artist.name %>'s Panel</h1>
+        </div>
+
+        <div class="panel-container">
+            <div class="artist-info">
+                <h2 class="section-title">Artist Information</h2>
+                <ul class="info-list">
+                    <li>
+                        <span class="info-label">Artist Name</span>
+                        <span class="info-value"><%= artist.name %></span>
+                    </li>
+                    <li>
+                        <span class="info-label">Genre</span>
+                        <span class="info-value"><%= artist.genre %></span>
+                    </li>
+                    <li>
+                        <span class="info-label">About</span>
+                        <span class="info-value"><%= artist.about %></span>
+                    </li>
+                </ul>
+
+                <a href="/a/<%= artist.name %>" class="view-button">View Public Profile</a>
+            </div>
+            <div class="album-form">
+                <h2 class="section-title">Add New Release</h2>
+                <form id="albumForm" action="/addAlbum" method="POST" enctype="multipart/form-data">
+                    <div class="form-group release-type-group">
+                        <label>Release Type:</label>
+                        <div class="release-types">
+                            <label class="release-card">
+                                <input type="radio" name="albumType" value="single" checked>
+                                <div class="card-content">
+                                    <div class="type-icon">💿</div>
+                                    <h3>Single</h3>
+                                </div>
+                            </label>
+
+                            <label class="release-card">
+                                <input type="radio" name="albumType" value="ep">
+                                <div class="card-content">
+                                    <div class="type-icon">📀</div>
+                                    <h3>EP</h3>
+                                </div>
+                            </label>
+
+                            <label class="release-card">
+                                <input type="radio" name="albumType" value="album">
+                                <div class="card-content">
+                                    <div class="type-icon">🎵</div>
+                                    <h3>Album</h3>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="AlbumName">Album Name:</label>
+                        <input type="text" id="AlbumName" name="AlbumName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="file">Album Cover:</label>
+                        <div class="custom-file-upload">
+                            <input type="file" id="file" name="file" required class="file-input" accept="image/*">
+
+                            <div id="cover-preview" style="width: 200px; height: 200px; margin: 10px 0; border: 2px dashed #ddd; border-radius: 5px; display: flex; justify-content: center; align-items: center; cursor: pointer; overflow: hidden;">
+                                <span id="cover-placeholder-text">Album cover preview</span>
+                            </div>
+
+                            <button type="button" class="file-upload-btn" data-for="file">
+                                <span class="upload-icon">📁</span> Choose Album Cover
+                            </button>
+                            <div class="file-name" id="file-name-display">No file chosen</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="songs">Songs (WAV format):</label>
+                        <div class="custom-file-upload">
+                            <input type="file" id="songs" name="songs" multiple accept=".wav" class="file-input">
+                            <button type="button" class="file-upload-btn" data-for="songs">
+                                <span class="upload-icon">🎵</span> Choose Songs
+                            </button>
+                            <div class="file-name" id="songs-name-display">No files chosen</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <input type="hidden" name="artistId" value="<%= artist.id %>">
+                        <button type="button" style="flex: 1;" id="previewBtn" class="view-button">Preview Album</button>
+                        <button type="submit" style="flex: 1;" class="view-button">Release Record</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+
+
+
+    <script>
+        if (!sessionStorage.getItem('reloaded')) {
+            sessionStorage.setItem('reloaded', 'true');
+            location.reload(true);
+        }
+
+        let selectedSongs = new DataTransfer();
+
+        function previewAlbumCover(input) {
+            const preview = document.getElementById('cover-preview');
+            const fileNameDisplay = document.getElementById('file-name-display');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    fileNameDisplay.textContent = input.files[0].name;
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.innerHTML = '<span id="cover-placeholder-text">Album cover preview</span>';
+                fileNameDisplay.textContent = 'No file chosen';
+            }
+        }
+
+        function updateSongsList() {
+            const songsInput = document.getElementById('songs');
+            const songsDisplay = document.getElementById('songs-name-display');
+            const songsList = document.querySelector('.selected-songs-list');
+
+            if (!songsList || !songsInput || !songsDisplay) return;
+
+            songsList.innerHTML = '';
+            if(songsInput.files.length === 0) {
+                songsDisplay.textContent = 'No files chosen';
+                return;
+            }
+
+            songsDisplay.textContent = songsInput.files.length + ' songs selected';
+
+            document.querySelectorAll('input[name^="songName_"]').forEach(el => el.remove());
+
+
+            const files = Array.from(songsInput.files);
+            files.forEach((file, index) => {
+                const songItem = document.createElement('div');
+                songItem.style.padding = '8px';
+                songItem.style.margin = '5px 0';
+                songItem.style.backgroundColor = '#f5f5f5';
+                songItem.style.borderRadius = '4px';
+                songItem.style.display = 'flex';
+                songItem.style.justifyContent = 'space-between';
+                songItem.style.alignItems = 'center';
+                songItem.draggable = true;
+                songItem.dataset.index = index;
+
+                // Add drag handle
+                const dragHandle = document.createElement('span');
+                dragHandle.innerHTML = '☰';
+                dragHandle.style.cursor = 'grab';
+                dragHandle.style.marginRight = '10px';
+                songItem.appendChild(dragHandle);
+
+                // Add track number
+                const trackNum = document.createElement('span');
+                trackNum.textContent = `${index + 1}.`;
+                trackNum.style.marginRight = '10px';
+                songItem.appendChild(trackNum);
+
+                // Add song name input field
+                const songNameInput = document.createElement('input');
+                songNameInput.type = 'text';
+                songNameInput.value = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
+                songNameInput.style.flexGrow = '1';
+                songNameInput.style.marginRight = '10px';
+                songNameInput.style.padding = '5px';
+                songNameInput.style.border = '1px solid #ddd';
+                songNameInput.style.borderRadius = '3px';
+                songNameInput.dataset.index = index;
+
+                // Create a hidden input to be submitted with the form
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = `songName_${index}`;
+                hiddenInput.value = songNameInput.value;
+                document.getElementById('albumForm').appendChild(hiddenInput);
+
+                songNameInput.addEventListener('input', function() {
+                    hiddenInput.value = this.value;
+                });
+
+                songItem.appendChild(songNameInput);
+
+                // Add remove button
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.innerHTML = '×';
+                removeBtn.style.background = 'none';
+                removeBtn.style.border = 'none';
+                removeBtn.style.color = '#ff3333';
+                removeBtn.style.fontSize = '18px';
+                removeBtn.style.cursor = 'pointer';
+                removeBtn.style.marginLeft = '5px';
+
+                removeBtn.addEventListener('click', function() {
+                    files.splice(index, 1);
+                    const dt = new DataTransfer();
+                    files.forEach(file => dt.items.add(file));
+                    selectedSongs = dt;
+                    songsInput.files = selectedSongs.files;
+                    updateSongsList();
+                });
+                songItem.appendChild(removeBtn);
+
+                // Drag and drop events
+                songItem.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', index);
+                    songItem.classList.add('dragging');
+                });
+
+                songItem.addEventListener('dragend', function() {
+                    songItem.classList.remove('dragging');
+                });
+
+                songItem.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                });
+
+                songItem.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    const draggedIdx = parseInt(e.dataTransfer.getData('text/plain'));
+                    const targetIdx = index;
+
+                    if(draggedIdx !== targetIdx) {
+                        // Reorder the files array
+                        const item = files[draggedIdx];
+                        files.splice(draggedIdx, 1);
+                        files.splice(targetIdx, 0, item);
+                        const dt = new DataTransfer();
+                        files.forEach(file => dt.items.add(file));
+                        selectedSongs = dt;
+                        songsInput.files = selectedSongs.files;
+                        updateSongsList();
+                    }
+                });
+
+                songsList.appendChild(songItem);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create songs list container if needed
+            const songsDisplay = document.getElementById('songs-name-display');
+            if (songsDisplay && !document.querySelector('.selected-songs-list')) {
+                const songsList = document.createElement('div');
+                songsList.className = 'selected-songs-list';
+                songsList.style.marginTop = '10px';
+                songsDisplay.parentNode.insertBefore(songsList, songsDisplay.nextSibling);
+            }
+
+            // Add styles for drag feedback
+            if (!document.getElementById('dragStyles')) {
+                const style = document.createElement('style');
+                style.id = 'dragStyles';
+                style.textContent = `
+                    .dragging { opacity: 0.5; }
+                    .drag-over { border-top: 2px solid #0066cc; }
+                `;
+                document.head.appendChild(style);
+            }
+
+            // Setup event listeners
+            const coverPreview = document.getElementById('cover-preview');
+            if (coverPreview) {
+                coverPreview.addEventListener('click', function() {
+                    document.getElementById('file').click();
+                });
+            }
+
+            const fileInput = document.getElementById('file');
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    previewAlbumCover(this);
+                });
+            }
+
+            const songsInput = document.getElementById('songs');
+            if (songsInput) {
+                songsInput.addEventListener('change', function() {
+                    Array.from(songsInput.files).forEach(file => {
+                        selectedSongs.items.add(file);
+                    });
+                    songsInput.files = selectedSongs.files;
+                    updateSongsList();
+                });
+            }
+
+            // File upload buttons
+            document.querySelectorAll('.file-upload-btn').forEach(button => {
+                const inputId = button.getAttribute('data-for');
+                const input = document.getElementById(inputId);
+                if (input) {
+                    button.addEventListener('click', function() {
+                        input.click();
+                    });
+                }
+            });
+
+            // Preview button functionality
+            const previewBtn = document.getElementById('previewBtn');
+            if (previewBtn) {
+                previewBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const form = document.getElementById('albumForm');
+                    const albumName = document.getElementById('AlbumName').value;
+
+                    if (!albumName) {
+                        alert('Please enter an album name to preview');
+                        return;
+                    }
+
+                    const coverFile = document.getElementById('file').files;
+                    const songFiles = document.getElementById('songs').files;
+
+                    if (coverFile.length === 0) {
+                        alert('Please select an album cover');
+                        return;
+                    }
+
+                    if (songFiles.length === 0) {
+                        alert('Please select at least one song');
+                        return;
+                    }
+
+                    // Set target to _self for normal navigation
+                    form.action = '/tempAlbumUpload';
+                    form.submit();
+                });
+            }
+
+            // Regular form submission (Release Record button)
+            const albumForm = document.getElementById('albumForm');
+            if (albumForm) {
+                albumForm.addEventListener('submit', function(e) {
+                    // If it's the preview button, we already handled it above
+                    if (e.submitter && e.submitter.id === 'previewBtn') {
+                        e.preventDefault();
+                        return;
+                    }
+
+                    // Normal form validation for the release button
+                    const albumName = document.getElementById('AlbumName').value;
+                    if (!albumName) {
+                        e.preventDefault();
+                        alert('Please enter an album name');
+                        return;
+                    }
+
+                    const coverFile = document.getElementById('file').files;
+                    if (coverFile.length === 0) {
+                        e.preventDefault();
+                        alert('Please select an album cover');
+                        return;
+                    }
+
+                    const songFiles = document.getElementById('songs').files;
+                    if (songFiles.length === 0) {
+                        e.preventDefault();
+                        alert('Please select at least one song');
+                        return;
+                    }
+
+                    const songNameInputs = document.querySelectorAll('input[name^="songName_"]');
+                    for (const input of songNameInputs) {
+                        if (!input.value.trim()) {
+                            e.preventDefault();
+                            alert('All songs must have names');
+                            return;
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+
+    </body>
+    </html>

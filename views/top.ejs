@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Most Popular Artists</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+                line-height: 1.6;
+            }
+            h1 {
+                text-align: center;
+                margin-bottom: 40px;
+                font-size: 2.5rem;
+                color: #333;
+                border-bottom: 2px solid #eee;
+                padding-bottom: 15px;
+            }
+            .artists-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 30px;
+            }
+            .artist-card {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                border: 1px solid #eee;
+                border-radius: 8px;
+                padding: 20px;
+                transition: transform 0.2s, box-shadow 0.2s;
+                position: relative;
+            }
+            .artist-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+            .artist-image {
+                width: 150px;
+                height: 150px;
+                border-radius: 50%;
+                object-fit: cover;
+                margin-bottom: 15px;
+            }
+            .artist-name {
+                font-size: 1.2rem;
+                font-weight: bold;
+                margin: 10px 0 5px;
+            }
+            .view-count {
+                color: #666;
+                font-size: 0.9rem;
+            }
+            .rank {
+                position: absolute;
+                top: -10px;
+                left: -10px;
+                background-color: #ff6b6b;
+                color: white;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 1.2rem;
+                box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            }
+            .no-artists {
+                text-align: center;
+                padding: 40px;
+                color: #666;
+                font-size: 1.2rem;
+            }
+            a {
+                text-decoration: none;
+                color: inherit;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Top Artists</h1>
+
+        <% if (artists && artists.length > 0) { %>
+            <div class="artists-grid">
+                <% artists.forEach(function(artist, index) { %>
+                    <a href="/a/<%= artist.name %>" class="artist-card">
+                        <div class="rank"><%= index + 1 %></div>
+                        <% if (artist.image_filename) { %>
+                            <img src="/images/<%= artist.image_filename %>" alt="<%= artist.name %>" class="artist-image">
+                        <% } else { %>
+                            <div class="artist-image" style="background-color: #eee; display: flex; justify-content: center; align-items: center;">
+                                <span>No image</span>
+                            </div>
+                        <% } %>
+                        <h2 class="artist-name"><%= artist.name %></h2>
+                        <div class="view-count"><%= artist.click_count %> views</div>
+                    </a>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="no-artists">No artists found</div>
+        <% } %>
+    </body>
+    </html>

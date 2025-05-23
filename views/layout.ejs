@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'IgiFy' %></title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Mini Player CSS -->
+    <link rel="stylesheet" href="/stylesheets/mini-player.css">
+    <!-- Additional CSS files -->
+    <% if(typeof styles !== 'undefined') { %>
+        <% styles.forEach(function(style) { %>
+            <link rel="stylesheet" href="<%= style %>">
+        <% }) %>
+    <% } %>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        header {
+            margin-bottom: 30px;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .logo a {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #0066cc; /* Blue color to match links */
+            text-decoration: none;
+            font-family: 'Montserrat', 'Segoe UI', sans-serif;
+            letter-spacing: 0.5px;
+        }
+        .logo i {
+            color: #0066cc; /* Matching blue color */
+            margin-right: 5px;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 25px;
+        }
+        .nav-links li a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .nav-links li a:hover {
+            color: #4a69bd;
+        }
+        main {
+            min-height: calc(100vh - 200px);
+        }
+        footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .section-title {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .play-button {
+            color: #1db954;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: all 0.2s;
+        }
+        .play-button:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        .play-album-button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #4a69bd;
+            color: white;
+            font-weight: bold;
+            padding: 10px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .play-album-button:hover {
+            background-color: #1ed760;
+            transform: scale(1.03);
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav>
+        <div class="logo">
+            <a href="/"><i class="fas fa-music"></i> IgiFy</a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/top">Top</a></li>
+            <li><a href="/explore">Explore</a></li>
+            <li><a href="/search">Search</a></li>
+            <li><a href="/artistsPanel">Artists Panel</a></li>
+
+        </ul>
+    </nav>
+</header>
+<main>
+    <%- body %>
+</main>
+<footer>
+    <div class="footer-content">
+        <p>&copy; <%= new Date().getFullYear() %> IgiFy. All rights reserved.</p>
+    </div>
+</footer>
+
+<%- include('partials/mini-player.ejs') %>
+<script src="/javascripts/ajax-navigation.js"></script>
+<script src="/javascripts/audio-controller.js"></script>
+<script src="/javascripts/mini-player.js"></script>
+<% if(typeof scripts !== 'undefined') { %>
+    <% scripts.forEach(function(script) { %>
+        <script src="<%= script %>"></script>
+    <% }) %>
+<% } %>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Artists</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+        .search-container {
+            margin: 20px 0;
+            position: relative;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .error {
+            color: red;
+        }
+        .button {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #4a69bd;
+            color: white;
+            text-decoration: none;
+            margin-right: 10px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+        .nav {
+            margin-bottom: 20px;
+        }
+        .nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: #4a69bd;
+        }
+        .sort-options {
+            margin-top: 10px;
+        }
+        .sort-options label {
+            margin-right: 15px;
+        }
+        #suggestions {
+            position: absolute;
+            width: 100%;
+            background: white;
+            border: 1px solid #ddd;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            border-radius: 4px;
+        }
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .suggestion-item:hover {
+            background-color: #f9f9f9;
+        }
+        .artist-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            border-radius: 4px;
+        }
+        .artist-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin-right: 20px;
+        }
+        .artist-info h3 {
+            margin-top: 0;
+        }
+        .artist-info a {
+            color: #4a69bd;
+            text-decoration: none;
+        }
+        .no-results {
+            color: #777;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Search Artists</h1>
+
+    <div class="section">
+        <div class="search-container">
+            <form class="search-form" action="/search" method="get" id="searchForm">
+                <div class="form-group">
+                    <input type="text" name="q" id="searchInput" placeholder="Search artists by name or genre" value="<%= typeof query !== 'undefined' ? query : '' %>">
+                    <div id="suggestions"></div>
+                </div>
+                <div class="sort-options">
+                    <span>Sort by: </span>
+                    <label><input type="radio" name="sort" value="popularity" <%= typeof sort !== 'undefined' && sort === 'popularity' ? 'checked' : '' %>> Popularity</label>
+                    <label><input type="radio" name="sort" value="name" <%= !sort || sort === 'name' ? 'checked' : '' %>> Name</label>
+                </div>
+                <br>
+                <button type="submit" class="button">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="section results-container" id="resultsContainer">
+        <% if (typeof error !== 'undefined') { %>
+            <p class="error"><%= error %></p>
+        <% } %>
+
+        <% if (typeof results !== 'undefined' && results.length > 0) { %>
+            <h2>Found <%= results.length %> result<%= results.length !== 1 ? 's' : '' %></h2>
+
+            <% results.forEach(artist => { %>
+                <div class="artist-card">
+                    <% if (artist.image_filename) { %>
+                        <img class="artist-image" src="/images/<%= artist.image_filename %>" alt="<%= artist.name %>">
+                    <% } else { %>
+                        <div class="artist-image-placeholder" style="width:100px;height:100px;background:#eee;margin-right:20px;display:flex;align-items:center;justify-content:center;">
+                            <span style="color:#999;">No image</span>
+                        </div>
+                    <% } %>
+
+                    <div class="artist-info">
+                        <h3><a href="/a/<%= artist.name %>"><%= artist.name %></a></h3>
+                        <p>Genre: <%= artist.genre %></p>
+                        <% if (artist.about) { %>
+                            <p><%= artist.about.length > 100 ? artist.about.substring(0, 100) + '...' : artist.about %></p>
+                        <% } %>
+                    </div>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <% if (typeof query !== 'undefined' && query !== '') { %>
+                <div class="no-results-container" style="text-align: center; padding: 20px; background-color: #f8f8f8; border-radius: 8px; margin: 20px 0;">
+                  <svg style="width: 48px; height: 48px; color: #888; margin-bottom: 10px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <p class="no-results" style="font-size: 18px; color: #555; margin-bottom: 5px;">No artists found</p>
+                  <p style="color: #777; font-size: 15px;">Your search for "<strong><%= query %></strong>" did not match any artists.</p>
+                </div>
+            <% } %>
+
+            <% if (typeof topArtists !== 'undefined' && topArtists.length > 0) { %>
+                <h2>Top Artists</h2>
+                <% topArtists.forEach((artist, index) => { %>
+                    <div class="artist-card">
+                        <div class="rank-badge" style="background:#ff6b6b;color:white;min-width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-right:10px;font-weight:bold;">
+                            <%= index + 1 %>
+                        </div>
+                        <% if (artist.image_filename) { %>
+                            <img class="artist-image" src="/images/<%= artist.image_filename %>" alt="<%= artist.name %>">
+                        <% } else { %>
+                            <div class="artist-image-placeholder" style="width:100px;height:100px;background:#eee;margin-right:20px;display:flex;align-items:center;justify-content:center;">
+                                <span style="color:#999;">No image</span>
+                            </div>
+                        <% } %>
+                        <div class="artist-info">
+                            <h3><a href="/a/<%= artist.name %>"><%= artist.name %></a></h3>
+                            <p>Genre: <%= artist.genre %></p>
+                            <% if (artist.about) { %>
+                                <p><%= artist.about.length > 100 ? artist.about.substring(0, 100) + '...' : artist.about %></p>
+                            <% } %>
+                            <p class="view-count"><%= artist.click_count || 0 %> views</p>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
+        <% } %>
+    </div>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const suggestionsContainer = document.getElementById('suggestions');
+    let debounceTimeout;
+
+    document.querySelectorAll('input[name="sort"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        document.getElementById('searchForm').submit();
+      });
+    });
+
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+
+        clearTimeout(debounceTimeout);
+
+        if (!query) {
+            suggestionsContainer.style.display = 'none';
+            return;
+        }
+
+        debounceTimeout = setTimeout(() => {
+            fetch(`/api/search-suggestions?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    suggestionsContainer.innerHTML = '';
+
+                    if (data.length > 0) {
+                        data.forEach(artist => {
+                            const item = document.createElement('div');
+                            item.className = 'suggestion-item';
+                            item.textContent = artist.name;
+
+                            item.addEventListener('click', () => {
+                                searchInput.value = artist.name;
+                                suggestionsContainer.style.display = 'none';
+                                document.getElementById('searchForm').submit();
+                            });
+
+                            suggestionsContainer.appendChild(item);
+                        });
+
+                        suggestionsContainer.style.display = 'block';
+                    } else {
+                        suggestionsContainer.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching suggestions:', error);
+                });
+        }, 300);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target !== searchInput && e.target !== suggestionsContainer) {
+            suggestionsContainer.style.display = 'none';
+        }
+    });
+</script>
+
+</body>
+</html>

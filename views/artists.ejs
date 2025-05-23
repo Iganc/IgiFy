@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Artist - IgiFy</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .user-info {
+            text-align: right;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .user-info a {
+            display: inline-block;
+            margin-left: 10px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .user-info a:hover {
+            text-decoration: underline;
+        }
+        .form-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #444;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1rem;
+        }
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+            padding: 10px 0;
+        }
+        button[type="submit"] {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+        button[type="submit"]:hover {
+            background-color: #0055aa;
+        }
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .name-feedback {
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .name-feedback.checking {
+            color: #666;
+        }
+
+        .name-feedback.available {
+            color: #28a745;
+        }
+
+        .name-feedback.taken {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="user-info">
+        <span>Currently logged in as <%= username %></span>
+        <% if (username === 'Guest') { %>
+            <a href="/login">Log In</a>
+            <a href="/register">Register</a>
+        <% } else { %>
+            <a href="/myaccount">My Account</a>
+            <a href="/logout">Log Out</a>
+        <% } %>
+    </div>
+</div>
+<div class="form-container">
+    <h1>Submit New Artist</h1>
+    <form action="/submit_artist" method="POST" enctype="multipart/form-data">
+        <label for="name">Artist Name:</label>
+        <input type="text" id="name" name="name" required placeholder="Enter artist name">
+        <label for="genre">Genre:</label>
+        <input type="text" id="genre" name="genre" required placeholder="Enter music genre(s)">
+        <label for="about">About:</label>
+        <textarea id="about" name="about" required placeholder="Tell us about this artist..."></textarea>
+        <div class="image-upload-container">
+            <label for="file">Artist Image (Optional):</label>
+            <input type="file" id="file" name="file" accept="image/*" style="display: none;" onchange="previewImage(this)">
+            <div id="image-preview" style="width: 200px; height: 200px; margin: 10px 0; border: 2px dashed #ddd; border-radius: 5px; display: flex; justify-content: center; align-items: center; cursor: pointer; overflow: hidden;" onclick="document.getElementById('file').click()">
+                <span id="placeholder-text">Click to select image</span>
+            </div>
+            <button type="button" class="secondary-button" onclick="document.getElementById('file').click()" style="background-color: #f0f0f0; color: #333; border: 1px solid #ddd; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">
+                Browse Files
+            </button>
+        </div>
+        <br>
+        <button type="submit">Submit Artist</button>
+    </form>
+    <a href="/" class="back-link">Back to Home</a>
+</div>
+<script>
+    function previewImage(input) {
+        const preview = document.getElementById('image-preview');
+        const placeholderText = document.getElementById('placeholder-text');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            };
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.innerHTML = '<span id="placeholder-text">Click to select image</span>';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const artistNameInput = document.getElementById('name');
+        const feedbackElement = document.createElement('div');
+        feedbackElement.classList.add('name-feedback');
+        artistNameInput.parentNode.insertBefore(feedbackElement, artistNameInput.nextSibling);
+
+        let debounceTimer;
+
+        artistNameInput.addEventListener('input', () => {
+            const name = artistNameInput.value.trim();
+            feedbackElement.textContent = '';
+
+            clearTimeout(debounceTimer);
+
+            if (name === '') return;
+
+            // Show checking message
+            feedbackElement.textContent = 'Checking availability...';
+            feedbackElement.className = 'name-feedback checking';
+
+            debounceTimer = setTimeout(() => {
+                fetch(`/api/check-artist-name?name=${encodeURIComponent(name)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.available) {
+                            feedbackElement.textContent = '✓ Name is available';
+                            feedbackElement.className = 'name-feedback available';
+                        } else {
+                            feedbackElement.textContent = '✗ Name is already taken';
+                            feedbackElement.className = 'name-feedback taken';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking name:', error);
+                        feedbackElement.textContent = '';
+                    });
+            }, 500);
+        });
+    });
+</script>
+</body>
+</html>

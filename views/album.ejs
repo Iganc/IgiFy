@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        window.playAlbum = function(startIndex) {
+            console.log("CALLED PLAY ALBUM FROM ALBUM.EJS");
+
+            // Get tracks from the current page
+            const tracks = <%- JSON.stringify(tracks) %>;
+
+            // Fetch each track's metadata first to get the actual audio URLs
+            Promise.all(tracks.map(track =>
+                fetch(`/api/track/${track.id}`)
+                    .then(response => response.json())
+            ))
+            .then(trackDataList => {
+                // Use the audioUrl from the API response
+                const formattedTracks = trackDataList.map(trackData => ({
+                    id: trackData.id,
+                    title: trackData.title,
+                    artist: "<%= artist.name %>",
+                    audioUrl: trackData.audioUrl,  // Use the actual audio file path
+                    albumTitle: "<%= album.title %>",
+                    albumType: "<%= album.type %>",
+                    image: trackData.image || "<%= album.image_cover_filename ? `/images/${album.image_cover_filename}` : '/images/default-cover.jpg' %>"
+                }));
+
+                console.log("Loading tracks:", formattedTracks);
+                if (window.audioController) {
+                    window.audioController.loadPlaylist(formattedTracks, startIndex);
+                }
+            });
+        };
+    </script>
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title><%= album.title %> - <%= artist.name %></title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .album-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .album-cover {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .album-title {
+            font-size: 2.5rem;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .album-artist {
+            font-size: 1.5rem;
+            margin: 0;
+            color: #666;
+        }
+        .album-info {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .album-details {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .detail-value {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .detail-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .tracks-section {
+            margin-bottom: 40px;
+        }
+        .track-list {
+            list-style: none;
+            padding: 0;
+        }
+        .track-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 20px;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .track-item:hover {
+            background-color: #f9f9f9;
+        }
+        .track-number {
+            font-weight: bold;
+            color: #666;
+            width: 30px;
+            text-align: center;
+        }
+        .track-title {
+            font-size: 1.1rem;
+        }
+        .track-duration {
+            color: #666;
+        }
+        .section-title {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .track-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto auto;
+            gap: 20px;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .play-button {
+            color: #0066cc;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: all 0.2s;
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 1.2rem;
+        }
+        .play-button:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        .play-album-button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #0066cc;
+            color: white;
+            font-weight: bold;
+            padding: 10px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            margin-top: 20px;
+            align-self: center;
+            transition: all 0.2s;
+        }
+        .play-album-button:hover {
+            background-color: #3195ff;
+            transform: scale(1.03);
+        }
+    </style>
+</head>
+<body>
+<div class="album-header">
+    <% if (album.image_cover_filename) { %>
+        <img src="/images/<%= album.image_cover_filename %>" alt="<%= album.title %>" class="album-cover">
+    <% } else { %>
+            <div class="album-cover" style="background-color: #eee; display: flex; justify-content: center; align-items: center;">
+                <span>No cover</span>
+            </div>
+        <% } %>
+        <h1 class="album-title"><%= album.title %></h1>
+        <h2 class="album-artist">by <a href="/a/<%= artist.name %>"><%= artist.name %></a></h2>
+        <div class="album-info">
+            <div class="album-details">
+                <div class="detail-item">
+                    <span class="detail-value"><%= album.number_of_songs %></span>
+                    <span class="detail-label">Songs</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-value"><%= Math.floor(album.length/60) %>:<%= (album.length % 60).toString().padStart(2, '0') %></span>
+                    <span class="detail-label">Total Length</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-value"><%= new Date(album.date_of_upload).toLocaleDateString() %></span>
+                    <span class="detail-label">Released</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-value"><%= album.type.charAt(0).toUpperCase() + album.type.slice(1) %></span>
+                    <span class="detail-label">Type</span>
+                </div>
+            </div>
+        </div>
+        <% if (typeof tracks !== 'undefined' && tracks && tracks.length > 0) { %>
+            <button onclick="playAlbum(0)" class="play-album-button">
+                <i class="fas fa-play-circle"></i> Play Album
+            </button>
+        <% } %>
+</div>
+<div class="tracks-section">
+    <h2 class="section-title">Tracks</h2>
+    <% if (typeof tracks !== 'undefined' && tracks && tracks.length > 0) { %>
+        <ul class="track-list">
+            <% tracks.forEach(function(track, index) { %>
+                <li class="track-item">
+                    <span class="track-number"><%= track.track_number %></span>
+                    <span class="track-title"><%= track.title %></span>
+                    <span class="track-duration"><%= formatDuration(track.duration) %></span>
+                    <button onclick="playAlbum(<%= index %>)" class="play-button">
+                        <i class="fas fa-play-circle"></i>
+                    </button>
+                </li>
+            <% }); %>
+        </ul>
+    <% } else { %>
+        <p>No tracks available for this <%= album.type %></p>
+    <% } %>
+</div>
+<a href="/a/<%= artist.name %>" class="back-link">← Back to <%= artist.name %>'s page</a>
+</body>
+</html>
