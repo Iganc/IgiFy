@@ -16,6 +16,7 @@ app.locals.formatDuration = function(seconds) {
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 };
+require('dotenv').config();
 
 const db = knex({
   client: 'pg',
